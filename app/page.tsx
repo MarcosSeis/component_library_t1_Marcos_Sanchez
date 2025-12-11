@@ -4,6 +4,8 @@ import { ButtonsDemo } from "./demo/ButtonDemo";
 import { InputsDemo } from "./demo/InputDemo";
 import { ModalDemo } from "./demo/ModalDemo";
 import { CardDemo } from "./demo/CardDemo";
+import { RealtimeDashboard } from "./dashboard/RealtimeDashboard";
+
 
 export default function DemoPage() {
   return (
@@ -18,6 +20,9 @@ export default function DemoPage() {
       <ModalDemo />
 
       <CardDemo />
+
+      <RealtimeDashboard />
+
     </div>
   );
 }
