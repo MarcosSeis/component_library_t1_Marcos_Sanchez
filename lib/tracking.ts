@@ -1,7 +1,10 @@
-interface TrackEventProps {
+export interface TrackEventProps {
   component: string;
   action: string;
   variant?: string;
+  type?: string;
+  state?: string;
+  value?: string;
   timestamp: number;
 }
 
