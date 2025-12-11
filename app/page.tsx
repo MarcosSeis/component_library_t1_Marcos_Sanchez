@@ -3,6 +3,7 @@
 import { ButtonsDemo } from "./demo/ButtonDemo";
 import { InputsDemo } from "./demo/InputDemo";
 import { ModalDemo } from "./demo/ModalDemo";
+import { CardDemo } from "./demo/CardDemo";
 
 export default function DemoPage() {
   return (
@@ -15,6 +16,8 @@ export default function DemoPage() {
       </div>
 
       <ModalDemo />
+
+      <CardDemo />
     </div>
   );
 }
