@@ -1,111 +1,59 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { trackingEmitter } from "@/lib/tracking";
-
+import { useState, useEffect } from "react";
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export const RealtimeDashboard = () => {
+export function RealtimeDashboard() {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
-const loadStats = async () => {
-  try {
-    const res = await fetch(`${API_URL}/components/stats`);
-    const data = await res.json();
+  const PAGE_SIZE = 15;
 
-    if (data.events) {
-      setEvents(data.events.reverse()); 
-    } else {
-      console.warn("No events array returned from API");
+  const loadStats = async () => {
+    try {
+      const res = await fetch(`${API_URL}/components/stats`);
+      const data = await res.json();
+
+      // ⭐ Convertimos stats simples → rows reales
+      const flatEvents = (data.events || []).map((e: any) => ({
+        component: e.component,
+        variant: e.variant ?? "—",
+        action: e.action,
+        timestamp: e.createdAt,
+      }));
+
+      setEvents(flatEvents.reverse());
+    } catch (err) {
+      console.error("Failed to load stats", err);
+    } finally {
+      setLoading(false);
     }
-  } catch (e) {
-    console.error("Failed to load stats", e);
-  } finally {
-    setLoading(false);
-  }
-};
-
-
-useEffect(() => {
-  loadStats();
-
-  const handler = () => loadStats();
-
-  trackingEmitter.on("tracked", handler);
-
-  return () => trackingEmitter.off("tracked", handler);
-}, []);
-
-
-  const total = events.length;
-
-  const exportJSON = () => {
-    const blob = new Blob([JSON.stringify(events, null, 2)], {
-      type: "application/json",
-    });
-    const url = URL.createObjectURL(blob);
-    const link = Object.assign(document.createElement("a"), {
-      href: url,
-      download: "analytics.json",
-    });
-    link.click();
   };
 
-const exportCSV = async () => {
-  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+  useEffect(() => {
+    loadStats();
 
-  if (!token) {
-    alert("Debe iniciar sesión para exportar CSV");
-    return;
-  }
+    // Poll solo si cambia algo
+    const interval = setInterval(loadStats, 3000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const res = await fetch(`${API_URL}/components/export`, {
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-  });
+  const totalPages = Math.ceil(events.length / PAGE_SIZE);
 
-  if (!res.ok) {
-    console.error("CSV export failed");
-    alert("Error exporting CSV.");
-    return;
-  }
-
-  const csv = await res.text();
-
-  const blob = new Blob([csv], { type: "text/csv" });
-  const url = URL.createObjectURL(blob);
-
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "analytics.csv";
-  link.click();
-};
-
-
-  if (loading) return <p>Loading analytics…</p>;
+  const paginated = events.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
 
   return (
-    <section className="space-y-4 border-t pt-8 mt-12">
+    <section className="space-y-4">
       <h2 className="text-2xl font-semibold">Analytics Dashboard</h2>
 
-      <div className="text-xl font-semibold">
-        Total interactions: <span className="text-blue-600">{total}</span>
+      <div className="text-lg font-semibold">
+        Total Interactions:{" "}
+        <span className="text-blue-600">{events.length}</span>
       </div>
 
-      <div className="flex gap-4">
-        <button onClick={exportJSON} className="px-4 py-2 bg-primary text-white rounded-md">
-          Export JSON
-        </button>
-
-        <button onClick={exportCSV} className="px-4 py-2 bg-secondary rounded-md">
-          Export CSV
-        </button>
-      </div>
-
-      {/* Tabla */}
-      <div className="mt-6 border rounded-lg overflow-hidden bg-white">
+      {/* TABLE */}
+      <div className="mt-4 border rounded-lg overflow-hidden bg-white">
         <table className="w-full text-left">
           <thead className="bg-gray-100">
             <tr>
@@ -116,17 +64,42 @@ const exportCSV = async () => {
             </tr>
           </thead>
           <tbody>
-            {events.map((e, i) => (
+            {paginated.map((e, i) => (
               <tr key={i} className="border-t">
-                <td className="p-2">{new Date(e.createdAt).toLocaleTimeString()}</td>
+                <td className="p-2">
+                  {new Date(e.timestamp).toLocaleTimeString()}
+                </td>
                 <td className="p-2">{e.component}</td>
                 <td className="p-2">{e.action}</td>
-                <td className="p-2">{e.variant ?? "—"}</td>
+                <td className="p-2">{e.variant}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+
+      {/* PAGINATION */}
+      <div className="flex justify-center gap-4 pt-2">
+        <button
+          disabled={page === 1}
+          onClick={() => setPage(page - 1)}
+          className="px-4 py-1 bg-gray-200 rounded disabled:opacity-40"
+        >
+          Previous
+        </button>
+
+        <span className="font-semibold">
+          Page {page} / {totalPages}
+        </span>
+
+        <button
+          disabled={page === totalPages}
+          onClick={() => setPage(page + 1)}
+          className="px-4 py-1 bg-gray-200 rounded disabled:opacity-40"
+        >
+          Next
+        </button>
+      </div>
     </section>
   );
-};
+}
