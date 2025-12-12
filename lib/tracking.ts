@@ -1,6 +1,9 @@
 "use client";
+import mitt from "mitt";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
+export const trackingEmitter = mitt<{ tracked: void }>();
 
 export async function trackEvent(data: {
   component: string;
@@ -18,25 +21,10 @@ export async function trackEvent(data: {
       }),
     });
 
-    if (!res.ok) {
-      console.error("Track event failed");
+    if (res.ok) {
+      trackingEmitter.emit("tracked");
     }
   } catch (err) {
     console.error("Track request error:", err);
   }
-}
-
-export function subscribeToTracking(callback: (count: number) => void) {
-
-  let interval = setInterval(async () => {
-    try {
-      const res = await fetch(`${API_URL}/components/stats`);
-      const json = await res.json();
-      callback(json.total || 0);
-    } catch (e) {
-      console.error("Error fetching stats");
-    }
-  }, 1500);
-
-  return () => clearInterval(interval);
 }
