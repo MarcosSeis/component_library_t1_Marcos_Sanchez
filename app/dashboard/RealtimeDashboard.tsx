@@ -3,16 +3,19 @@
 import { useEffect, useState } from "react";
 import { subscribeToTracking } from "@/lib/tracking";
 
+const API_URL = process.env.NEXT_PUBLIC_API_URL;
+
 export const RealtimeDashboard = () => {
   const [events, setEvents] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Fetch initial stats from API mock
   const loadStats = async () => {
     try {
-      const res = await fetch("/api/components/stats");
+      const res = await fetch(`${API_URL}/components/stats`);
       const data = await res.json();
-      setEvents(data.events.reverse()); // newest last
+
+      
+      setEvents(data.events || []);
     } catch (e) {
       console.error("Failed to load stats", e);
     } finally {
@@ -22,10 +25,16 @@ export const RealtimeDashboard = () => {
 
   useEffect(() => {
     loadStats();
+    subscribeToTracking((newTotal) => {
+      setEvents((prev) => {
+        const currentTotal = prev.length;
+        const missingEvents = newTotal - currentTotal;
+        if (missingEvents > 0) {
+          loadStats();
+        }
 
-    // Realtime updates
-    subscribeToTracking((event) => {
-      setEvents((prev) => [...prev, event]);
+        return prev;
+      });
     });
   }, []);
 
@@ -43,13 +52,13 @@ export const RealtimeDashboard = () => {
   };
 
   const exportCSV = async () => {
-    const res = await fetch("/api/components/export");
-    const csv = await res.text();
+    const res = await fetch(`${API_URL}/components/export`);
 
+    const csv = await res.text();
     const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
+
     const a = document.createElement("a");
-    a.href = url;
+    a.href = URL.createObjectURL(blob);
     a.download = "analytics.csv";
     a.click();
   };
@@ -76,13 +85,13 @@ export const RealtimeDashboard = () => {
 
         <button
           onClick={exportCSV}
-          className="px-4 py-2 bg-secondary rounded-md"
+          className="px-4 py-2 bg-secondary rounded-md text-white"
         >
           Export CSV
         </button>
       </div>
 
-      {/* Events table */}
+      {/* Table */}
       <div className="mt-6 border rounded-lg overflow-hidden bg-white">
         <table className="w-full text-left">
           <thead className="bg-gray-100">
