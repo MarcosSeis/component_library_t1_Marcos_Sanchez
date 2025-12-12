@@ -88,7 +88,6 @@ npm test
 
 ```bash
 git clone <repo-url>
-cd component_library_t1_Marcos_Sanchez
 ```
 
 2. Instalar dependencias
