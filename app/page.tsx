@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { isLoggedIn } from "@/lib/auth-client";
 
@@ -15,24 +15,35 @@ import { RealtimeDashboard } from "./dashboard/RealtimeDashboard";
 
 export default function DemoPage() {
   const router = useRouter();
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
-    if (!isLoggedIn()) router.replace("/login");
-  }, []);
+    if (!isLoggedIn()) {
+      router.replace("/login");
+    } else {
+      setReady(true);
+    }
+  }, [router]);
 
-  if (!isLoggedIn()) {
-    return <p className="text-center text-gray-600">Redirecting…</p>;
+  if (!ready) {
+    return (
+      <p className="text-center text-gray-600 mt-10">
+        Checking session…
+      </p>
+    );
   }
 
   return (
-    <div className="p-6 space-y-12">
+    <div className="p-6">
+      <h1 className="text-3xl font-bold mb-8">
+        Component Library Demo
+      </h1>
 
-      <h1 className="text-3xl font-bold mb-6">Component Library Demo</h1>
-
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
-
-        {/* LEFT: COMPONENT SHOWCASE */}
-        <div className="space-y-12">
+      {/* GRID PRINCIPAL */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+        
+        {/* LEFT: COMPONENT DEMOS */}
+        <div className="lg:col-span-2 space-y-12">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-10">
             <ButtonsDemo />
             <InputsDemo />
@@ -42,10 +53,11 @@ export default function DemoPage() {
           <CardDemo />
         </div>
 
-        {/* RIGHT: ANALYTICS */}
-        <div>
+        {/* RIGHT: DASHBOARD */}
+        <div className="lg:col-span-1">
           <RealtimeDashboard />
         </div>
+
       </div>
     </div>
   );
