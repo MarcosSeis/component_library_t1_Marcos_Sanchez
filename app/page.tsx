@@ -29,7 +29,6 @@ export default function DemoPage() {
 
       <h1 className="text-3xl font-bold mb-6">Component Library Demo</h1>
 
-      {/* GRID PRINCIPAL */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-10">
 
         {/* LEFT: COMPONENT SHOWCASE */}
