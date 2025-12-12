@@ -9,9 +9,8 @@ interface TrackEventProps {
 
 let listeners: ((event: TrackEventProps) => void)[] = [];
 
-// Local dispatch (demo realtime dashboard)
+// Local dispatch 
 export const trackEvent = async (event: TrackEventProps) => {
-  // notify dashboard listeners
   listeners.forEach((l) => l(event));
 
   // send to backend mock
