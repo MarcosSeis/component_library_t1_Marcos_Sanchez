@@ -52,18 +52,37 @@ useEffect(() => {
     link.click();
   };
 
-  const exportCSV = async () => {
-    const res = await fetch(`${API_URL}/components/export`);
-    const csv = await res.text();
+const exportCSV = async () => {
+  const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
-    const blob = new Blob([csv], { type: "text/csv" });
-    const url = URL.createObjectURL(blob);
-    const link = Object.assign(document.createElement("a"), {
-      href: url,
-      download: "analytics.csv",
-    });
-    link.click();
-  };
+  if (!token) {
+    alert("Debe iniciar sesión para exportar CSV");
+    return;
+  }
+
+  const res = await fetch(`${API_URL}/components/export`, {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+  });
+
+  if (!res.ok) {
+    console.error("CSV export failed");
+    alert("Error exporting CSV.");
+    return;
+  }
+
+  const csv = await res.text();
+
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "analytics.csv";
+  link.click();
+};
+
 
   if (loading) return <p>Loading analytics…</p>;
 
