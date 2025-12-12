@@ -20,35 +20,51 @@ export async function login(email: string, password: string) {
       body: JSON.stringify({ email, password }),
     });
 
-    const json = await res.json();
+    const data = await res.json();
 
     if (!res.ok) {
-      return { success: false, error: json.error || "Invalid credentials" };
+      return {
+        success: false,
+        message: data.message || "Invalid credentials",
+      };
     }
 
-    localStorage.setItem("token", json.token);
+    if (data.token) {
+      localStorage.setItem("token", data.token);
+    }
+
     return { success: true };
-  } catch {
-    return { success: false, error: "Network error" };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Network error logging in",
+    };
   }
 }
 
-export async function registerUser(email: string, password: string) {
+export async function register(name: string, email: string, password: string) {
   try {
     const res = await fetch(`${API_URL}/auth/register`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ name, email, password }),
     });
 
+    const data = await res.json();
+
     if (!res.ok) {
-      const err = await res.json();
-      return { success: false, message: err.error || "Registration error" };
+      return {
+        success: false,
+        message: data.message || "Registration failed",
+      };
     }
 
     return { success: true };
-  } catch (e) {
-    return { success: false, message: "Network error" };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Network error registering user",
+    };
   }
 }
 

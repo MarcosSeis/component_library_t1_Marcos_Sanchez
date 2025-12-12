@@ -1,10 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Input } from "@/components/Input";
-import { Button } from "@/components/Button";
-import { login } from "@/lib/auth";
 import { useRouter } from "next/navigation";
+import { login } from "@/lib/auth";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -12,17 +10,17 @@ export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [errorMsg, setErrorMsg] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setErrorMsg("");
+    setError("");
 
-    const result = await login(email, password);
+    const res = await login(email, password);
 
-    if (!result.success) {
-      setErrorMsg(result.error || "Login failed");
+    if (!res.success) {
+      setError(res.message || "Login failed");
       setLoading(false);
       return;
     }
@@ -31,52 +29,55 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <form
-        onSubmit={handleSubmit}
-        className="bg-white shadow-md rounded-lg px-8 pt-8 pb-6"
+        onSubmit={onSubmit}
+        className="bg-white p-8 rounded-xl shadow-md  space-y-6"
       >
-        <h1 className="text-2xl font-bold text-center mb-6">Login</h1>
+        <h1 className="text-2xl font-semibold text-center">Login</h1>
 
-        {/* Email */}
-        <div className="mb-4">
-          <Input
-            label="Email"
-            type="email"
-            placeholder="you@example.com"
-            value={email}
-            onChange={setEmail}
-            state={errorMsg ? "error" : "default"}
-          />
-        </div>
-
-        {/* Password */}
-        <div className="mb-6">
-          <Input
-            label="Password"
-            type="password"
-            placeholder="********"
-            value={password}
-            onChange={setPassword}
-            state={errorMsg ? "error" : "default"}
-          />
-        </div>
-
-        {/* Error message */}
-        {errorMsg && (
-          <p className="text-red-500 text-sm mb-4 text-center">{errorMsg}</p>
+        {error && (
+          <div className="text-red-600 bg-red-50 p-2 rounded text-center">
+            {error}
+          </div>
         )}
 
-        {/* Submit */}
-        <Button
-          variant="primary"
-          size="large"
-          state={loading ? "loading" : "default"}
-          className="w-full"
+        <div>
+          <label className="block mb-1">Email</label>
+          <input
+            className="w-full border rounded px-3 py-2"
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="email@example.com"
+          />
+        </div>
+
+        <div>
+          <label className="block mb-1">Password</label>
+          <input
+            className="w-full border rounded px-3 py-2"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="••••••••"
+          />
+        </div>
+
+        <button
           type="submit"
+          disabled={loading}
+          className="w-full bg-blue-600 text-white py-2 rounded-md hover:bg-blue-700 transition disabled:opacity-50"
         >
-          Login
-        </Button>
+          {loading ? "Loading..." : "Login"}
+        </button>
+
+        <p className="text-center text-sm text-gray-600">
+          Don’t have an account?{" "}
+          <a href="/register" className="text-blue-600 font-semibold hover:underline transition">
+            Create one
+          </a>
+        </p>
       </form>
     </div>
   );
