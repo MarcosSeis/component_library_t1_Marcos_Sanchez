@@ -32,3 +32,23 @@ export async function login(email: string, password: string) {
     return { success: false, error: "Network error" };
   }
 }
+
+export async function registerUser(email: string, password: string) {
+  try {
+    const res = await fetch(`${API_URL}/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json();
+      return { success: false, message: err.error || "Registration error" };
+    }
+
+    return { success: true };
+  } catch (e) {
+    return { success: false, message: "Network error" };
+  }
+}
+
