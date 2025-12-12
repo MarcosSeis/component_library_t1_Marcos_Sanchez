@@ -2,26 +2,33 @@
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-export async function login(email: string, password: string) {
-  const res = await fetch(`${API_URL}/auth/login`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email, password }),
-  });
-
-  if (!res.ok) throw new Error("Invalid credentials");
-
-  return res.json(); // { token }
+export function getToken() {
+  if (typeof window === "undefined") return null;
+  return localStorage.getItem("token");
 }
 
-export async function register(name: string, email: string, password: string) {
-  const res = await fetch(`${API_URL}/auth/register`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ name, email, password }),
-  });
+export function logout() {
+  localStorage.removeItem("token");
+  window.location.href = "/login";
+}
 
-  if (!res.ok) throw new Error("Registration failed");
+export async function login(email: string, password: string) {
+  try {
+    const res = await fetch(`${API_URL}/auth/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, password }),
+    });
 
-  return res.json();
+    const json = await res.json();
+
+    if (!res.ok) {
+      return { success: false, error: json.error || "Invalid credentials" };
+    }
+
+    localStorage.setItem("token", json.token);
+    return { success: true };
+  } catch {
+    return { success: false, error: "Network error" };
+  }
 }
