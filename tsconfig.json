@@ -19,12 +19,8 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": [
-        "./*"
-      ],
-      "@/components/*": [
-        "components/*"
-      ]
+        "@/*": ["./*"],
+  "@/components": ["components/index.ts"],
     },
     "plugins": [
       {

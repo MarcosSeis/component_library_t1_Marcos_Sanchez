@@ -1,6 +1,6 @@
 "use client";
 
-import { Input } from "@/components/Input";
+import { Input } from "@/components";
 import { useState } from "react";
 
 export const InputsDemo = () => {

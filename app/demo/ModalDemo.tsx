@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/Button";
-import { Modal } from "@/components/Modal"
+import { Button, Modal } from "@/components";
 
 export const ModalDemo = () => {
   const [openSmall, setOpenSmall] = useState(false);

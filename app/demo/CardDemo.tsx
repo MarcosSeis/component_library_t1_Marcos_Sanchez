@@ -1,7 +1,6 @@
 "use client";
 
-import { Card } from "@/components/Card";
-import { Button } from "@/components/Button";
+import { Card, Button } from "@/components";
 
 export const CardDemo = () => {
   return (

@@ -1,9 +1,11 @@
 "use client";
 
-import { ButtonsDemo } from "./demo/ButtonDemo";
-import { InputsDemo } from "./demo/InputDemo";
-import { ModalDemo } from "./demo/ModalDemo";
-import { CardDemo } from "./demo/CardDemo";
+import {
+  ButtonsDemo,
+  InputsDemo,
+  ModalDemo,
+  CardDemo
+} from "./demo";
 import { RealtimeDashboard } from "./dashboard/RealtimeDashboard";
 
 
